@@ -1,0 +1,69 @@
+# Build products
+Binaries/
+Build/
+DerivedDataCache/
+Intermediate/
+Saved/
+Content/ParagonGideon/
+Content/ParagonMinions/
+Content/Skeleton_Guard/
+
+# Unreal Engine temp files
+*.tmp
+*.log
+*.vsconfig
+
+# Visual Studio / Rider / VSCode
+.vs/
+.vscode/
+.idea/
+*.suo
+*.opensdf
+*.sdf
+*.user
+*.userprefs
+*.VC.db
+*.VC.opendb
+
+# Xcode
+*.xcworkspace
+*.xcodeproj
+*.xcuserstate
+
+# Mac / Linux junk
+.DS_Store
+.AppleDouble
+.LSOverride
+*~
+*.swp
+
+# Crash reports
+crashinfo-*
+CrashReportClient/
+
+# ================================
+# Unreal Generated Project Files
+# ================================
+
+# These are regenerated
+*.sln
+*.xcodeproj
+*.xcworkspace
+
+# ================================
+# Optional: Packaging / Staging
+# ================================
+
+# Uncomment if you don't want packaged builds in git
+# StagedBuilds/
+# Windows/
+# Linux/
+# Mac/
+
+# ================================
+# Optional: Plugins (generated parts)
+# ================================
+
+# Ignore plugin intermediates but keep source
+Plugins/**/Binaries/
+Plugins/**/Intermediate/
