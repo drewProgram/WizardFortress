@@ -18,6 +18,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
 	bool bJumpStarted;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Slots")
+	bool bIsAnimFullBody = false;
 private:
 	ABaseCharacter* Char = nullptr;
 
@@ -29,7 +32,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	bool bIsInAir;
-
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	FVector Velocity;

@@ -27,6 +27,8 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visual")
+	FText DisplayName;
 
 	UFUNCTION(BlueprintPure)
 	UInventoryComponent* GetInventoryComponent() const;

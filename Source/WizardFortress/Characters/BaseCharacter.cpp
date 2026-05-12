@@ -31,6 +31,10 @@ ABaseCharacter::ABaseCharacter()
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
+
+	GetCharacterMovement()->bConstrainToPlane = true;
+	GetCharacterMovement()->SetPlaneConstraintAxisSetting(EPlaneConstraintAxisSetting::Y); // não pode andar no eixo Y
+	GetCharacterMovement()->bUseRVOAvoidance = false;
 }
 
 UInventoryComponent* ABaseCharacter::GetInventoryComponent() const
@@ -75,6 +79,8 @@ void ABaseCharacter::BeginPlay()
 		UE_LOG(LogTemp, Display, TEXT("No equipments equipped!"));
 		ApplyDefaultEquipment();
 	}
+
+	DisplayName = FText::FromString(GetActorNameOrLabel());
 }
 
 void ABaseCharacter::ApplyDefaultEquipment()
