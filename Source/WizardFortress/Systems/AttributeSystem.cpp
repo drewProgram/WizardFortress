@@ -65,27 +65,42 @@ bool UAttributeSystem::RequestUpdateHealth(float BaseValue)
 	return true;
 }
 
-float UAttributeSystem::GetHealth()
+float UAttributeSystem::GetHealth() const
 {
 	return Health;
 }
 
-int32 UAttributeSystem::GetMana()
+float UAttributeSystem::GetMaxHealth() const
+{
+	return MaxHealth;
+}
+
+int32 UAttributeSystem::GetMana() const
 {
 	return Mana;
 }
 
-float UAttributeSystem::GetMovementSpeed()
+int32 UAttributeSystem::GetMaxMana() const
+{
+	return MaxMana;
+}
+
+float UAttributeSystem::GetMovementSpeed() const
 {
 	return MovementSpeed;
 }
 
-int32 UAttributeSystem::GetPhysicalDefense()
+float UAttributeSystem::GetMaxMovementSpeed() const
+{
+	return 0.0f;
+}
+
+int32 UAttributeSystem::GetPhysicalDefense() const
 {
 	return PhysicalDefense;
 }
 
-int32 UAttributeSystem::GetElementalDefense()
+int32 UAttributeSystem::GetElementalDefense() const
 {
 	return ElementalDefense;
 }
@@ -115,6 +130,7 @@ void UAttributeSystem::InitAttributes()
 void UAttributeSystem::UpdateMana(int32 TreatedValue)
 {
 	Mana += TreatedValue;
+	OnManaChanged.Broadcast(Mana, MaxMana);
 	UE_LOG(LogTemp, Display, TEXT("New mana value: %d"), Mana);
 }
 
@@ -122,6 +138,8 @@ void UAttributeSystem::UpdateHealth(float TreatedValue)
 {
 	Health += TreatedValue;
 	UE_LOG(LogTemp, Display, TEXT("New health value: %f"), Health);
+
+	OnHealthChanged.Broadcast(Health, MaxHealth);
 
 	if (Health <= 0.f)
 	{
@@ -153,7 +171,11 @@ void UAttributeSystem::HandleEquipmentChanged(EEquipmentSlot Slot, UEquipmentDat
 			PhysicalDefense += NewItem->ArmorValue;
 		}
 		UE_LOG(LogTemp, Display, TEXT("Updated attributes for new equipment!"));
+
 		// call delegate for ui here
+		OnHealthChanged.Broadcast(Health, MaxHealth);
+		OnManaChanged.Broadcast(Mana, MaxMana);
+		OnPDefenseChanged.Broadcast(PhysicalDefense);
 
 		return;
 	}
@@ -162,6 +184,10 @@ void UAttributeSystem::HandleEquipmentChanged(EEquipmentSlot Slot, UEquipmentDat
 	MaxHealth += NewItem->HealthBonus;
 	MaxMana += NewItem->ManaBonus;
 	PhysicalDefense += NewItem->ArmorValue;
+
+	OnHealthChanged.Broadcast(Health, MaxHealth);
+	OnManaChanged.Broadcast(Mana, MaxMana);
+	OnPDefenseChanged.Broadcast(PhysicalDefense);
 
 	UE_LOG(LogTemp, Display, TEXT("Updated attributes for new equipment!"));
 }

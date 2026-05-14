@@ -48,9 +48,15 @@ public:
 	UFUNCTION(BlueprintPure)
 	USceneComponent* GetSkillSpawnPoint() const;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
+	TSoftObjectPtr<UAnimMontage> DeathMontage = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
+	TSoftObjectPtr<UAnimMontage> HitMontage = nullptr;
 
 protected:
 	virtual void BeginPlay() override;
+
 
 	UPROPERTY(VisibleAnywhere, BlueprintGetter = GetInventoryComponent)
 	TObjectPtr<UInventoryComponent> InventoryComponent;

@@ -9,6 +9,22 @@
 #include "WizardFortress.h"
 #include "Widgets/Input/SVirtualJoystick.h"
 
+#include "UI/MainHUDWidget.h"
+#include "Systems/AttributeSystem.h"
+#include "Characters/BaseCharacter.h"
+
+void AWizardFortressPlayerController::ShowPauseMenu()
+{
+}
+
+void AWizardFortressPlayerController::HidePauseMenu()
+{
+}
+
+void AWizardFortressPlayerController::TogglePauseMenu()
+{
+}
+
 void AWizardFortressPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -29,7 +45,18 @@ void AWizardFortressPlayerController::BeginPlay()
 			UE_LOG(LogWizardFortress, Error, TEXT("Could not spawn mobile controls widget."));
 
 		}
+	}
 
+	if (MainHUDClass)
+	{
+		MainHUD = CreateWidget<UMainHUDWidget>(this, MainHUDClass);
+		if (MainHUD)
+		{
+			MainHUD->AddToViewport();
+			bShowMouseCursor = false;
+			FInputModeGameOnly InputMode;
+			SetInputMode(InputMode);
+		}
 	}
 }
 
@@ -60,8 +87,37 @@ void AWizardFortressPlayerController::SetupInputComponent()
 	}
 }
 
+void AWizardFortressPlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+	if (UAttributeSystem* AttrSys = (Cast<ABaseCharacter>(GetPawn()))->GetAttributeComponent())
+	{
+		AttrSys->OnHealthChanged.AddUObject(this, &AWizardFortressPlayerController::HandleHealthChanged);
+		AttrSys->OnManaChanged.AddUObject(this, &AWizardFortressPlayerController::HandleManaChanged);
+
+		HandleHealthChanged(AttrSys->GetHealth(), AttrSys->GetMaxHealth());
+		HandleManaChanged(AttrSys->GetMana(), AttrSys->GetMaxMana());
+	}
+}
+
 bool AWizardFortressPlayerController::ShouldUseTouchControls() const
 {
 	// are we on a mobile platform? Should we force touch?
 	return SVirtualJoystick::ShouldDisplayTouchInterface() || bForceTouchControls;
+}
+
+void AWizardFortressPlayerController::HandleHealthChanged(float CurrentHealth, float MaxHealth)
+{
+	if (MainHUD)
+	{
+		MainHUD->SetHealth(CurrentHealth, MaxHealth);
+	}
+}
+
+void AWizardFortressPlayerController::HandleManaChanged(int32 CurrentMana, int32 MaxMana)
+{
+	if (MainHUD)
+	{
+		MainHUD->SetMana(CurrentMana, MaxMana);
+	}
 }

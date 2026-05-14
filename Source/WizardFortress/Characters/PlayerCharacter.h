@@ -79,6 +79,8 @@ protected:
 
 	void TurnCharacter(float Degrees);
 
+	virtual void HandleDeath() override;
+
 public:
 
 	/** Returns CameraBoom subobject **/

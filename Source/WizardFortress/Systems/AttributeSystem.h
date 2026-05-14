@@ -10,11 +10,11 @@
 #include "AttributeSystem.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnCharacterDied);
-DECLARE_MULTICAST_DELEGATE(FOnManaChanged);
-DECLARE_MULTICAST_DELEGATE(FOnHealthChanged);
-DECLARE_MULTICAST_DELEGATE(FOnMovementSpeedChanged);
-DECLARE_MULTICAST_DELEGATE(FOnPDefenseChanged);
-DECLARE_MULTICAST_DELEGATE(FOnEDefenseChanged);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnManaChanged, int32, int32);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, float, float);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnMovementSpeedChanged, float);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPDefenseChanged, int32);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnEDefenseChanged, int32);
 
 class UEquipmentData;
 class ABaseCharacter;
@@ -36,20 +36,36 @@ public:
 
 	FOnCharacterDied OnCharacterDied;
 
-	UFUNCTION(BlueprintCallable)
-	float GetHealth();
+	/* Attribute Update Delegates */
+	FOnManaChanged           OnManaChanged;
+	FOnHealthChanged         OnHealthChanged;
+	FOnMovementSpeedChanged  OnMovementSpeedChanged;
+	FOnPDefenseChanged       OnPDefenseChanged;
+	FOnEDefenseChanged       OnEDefenseChanged;
 
-	UFUNCTION(BlueprintCallable)
-	int32 GetMana();
+	UFUNCTION(BlueprintPure)
+	float GetHealth() const;
 
-	UFUNCTION(BlueprintCallable)
-	float GetMovementSpeed();
+	UFUNCTION(BlueprintPure)
+	float GetMaxHealth() const;
 
-	UFUNCTION(BlueprintCallable)
-	int32 GetPhysicalDefense();
+	UFUNCTION(BlueprintPure)
+	int32 GetMana() const;
 
-	UFUNCTION(BlueprintCallable)
-	int32 GetElementalDefense();
+	UFUNCTION(BlueprintPure)
+	int32 GetMaxMana() const;
+
+	UFUNCTION(BlueprintPure)
+	float GetMovementSpeed() const;
+
+	UFUNCTION(BlueprintPure)
+	float GetMaxMovementSpeed() const;
+
+	UFUNCTION(BlueprintPure)
+	int32 GetPhysicalDefense() const;
+
+	UFUNCTION(BlueprintPure)
+	int32 GetElementalDefense() const;
 
 protected:
 	// Called when the game starts
@@ -63,28 +79,28 @@ protected:
 	UFUNCTION()
 	void HandleEquipmentChanged(EEquipmentSlot Slot, UEquipmentData* NewItem);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Runtime Attributes")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, BlueprintGetter = GetHealth, Category = "Runtime Attributes")
 	float Health;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Runtime Attributes")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, BlueprintGetter = GetMana, Category = "Runtime Attributes")
 	int32 Mana;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Runtime Attributes")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, BlueprintGetter = GetMovementSpeed, Category = "Runtime Attributes")
 	float MovementSpeed;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Base Attributes")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, BlueprintGetter = GetPhysicalDefense, Category = "Base Attributes")
 	int32 PhysicalDefense = 0;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Base Attributes")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, BlueprintGetter = GetElementalDefense, Category = "Base Attributes")
 	int32 ElementalDefense = 0;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Base Attributes")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, BlueprintGetter = GetMaxHealth, Category = "Base Attributes")
 	float MaxHealth = 100.f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Base Attributes")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, BlueprintGetter = GetMaxMana, Category = "Base Attributes")
 	int32 MaxMana = 50;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Base Attributes")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, BlueprintGetter = GetMaxMovementSpeed, Category = "Base Attributes")
 	float MaxMovementSpeed = 500.f;
 
 	ABaseCharacter* CompOwner;

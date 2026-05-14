@@ -186,3 +186,40 @@ void APlayerCharacter::TurnCharacter(float Degrees)
 	SetActorRotation(TargetRotation);
 	//bIsRotating = true;
 }
+
+void APlayerCharacter::HandleDeath()
+{
+	UAnimMontage* LoadedMontage = DeathMontage.LoadSynchronous();
+	if (LoadedMontage)
+	{
+		UE_LOG(LogTemp, Display, TEXT("Playing death montage for actor %s!"), *DisplayName.ToString());
+
+		APlayerController* PC = Cast<APlayerController>(GetController());
+
+		if (PC)
+		{
+			PC->StopMovement();
+			DisableInput(PC);
+		}
+
+		UMainAnimInstance* AnimIns = Cast<UMainAnimInstance>(GetMesh()->GetAnimInstance());
+		if (AnimIns)
+		{
+			GetCapsuleComponent()->SetCollisionEnabled(
+				ECollisionEnabled::NoCollision
+			);
+
+			GetMesh()->SetCollisionEnabled(
+				ECollisionEnabled::NoCollision
+			);
+			AnimIns->bIsAnimFullBody = true;
+		}
+
+		GetCapsuleComponent()->SetCanEverAffectNavigation(false);
+
+		PlayAnimMontage(LoadedMontage);
+		return;
+	}
+
+	UE_LOG(LogTemp, Error, TEXT("No death montage set for %s!"), *DisplayName.ToString());
+}
