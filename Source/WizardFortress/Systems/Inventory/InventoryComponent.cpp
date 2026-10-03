@@ -11,37 +11,82 @@ UInventoryComponent::UInventoryComponent()
 
 bool UInventoryComponent::AddItem(UItemData* ItemData, bool bHasItem, int32 Amount)
 {
-	if (bHasItem)
+	if (ItemData->bIsStackable)
 	{
-		for (FInventorySlot& Slot : Slots)
+		FInventorySlot* ExistingSlot =
+			Slots.FindByPredicate(
+				[ItemData](const FInventorySlot& Slot)
+				{
+					return Slot.ItemData == ItemData;
+				});
+
+		if (ExistingSlot)
 		{
-			if (Slot.ItemData->ItemName.EqualTo(ItemData->ItemName))
-			{
-				Slot.Quantity += Amount;
+			ExistingSlot->Quantity += Amount;
+			
+			FInventoryChange Change;
+			Change.ChangeType = EInventoryChangeType::QuantityChanged;
+			Change.Slot = *ExistingSlot;
+			Change.InstanceId = ExistingSlot->InstanceId;
 
-				PrintItems();
+			OnInventoryChanged.Broadcast(Change);
+			OnItemAdded.Broadcast(
+				ExistingSlot->ItemData,
+				ExistingSlot->Quantity,
+				ExistingSlot->InstanceId
+			);
 
-				return true;
-			}
+			PrintItems();
+
+			return true;
 		}
 
-		return false;
+		FInventorySlot NewSlot;
+		FGuid InstanceId = FGuid::NewGuid();
+		NewSlot.InstanceId = InstanceId;
+		NewSlot.ItemData = ItemData;
+		NewSlot.Quantity = Amount;
+
+		Slots.Add(MoveTemp(NewSlot));
+
+		FInventoryChange Change;
+		Change.ChangeType = EInventoryChangeType::Added;
+		Change.Slot = NewSlot;
+		Change.InstanceId = InstanceId;
+
+		OnInventoryChanged.Broadcast(Change);
+		OnItemAdded.Broadcast(ItemData, Amount, InstanceId);
+
+		PrintItems();
+
+		return true;
 	}
-
-	FInventorySlot NewSlot;
-	NewSlot.ItemData = ItemData;
-	NewSlot.Quantity = Amount;
-
-	if (ItemData->GetItemCategory() == EItemCategory::Consumable)
+	else
 	{
-		LastConsumableAdded = Cast<UConsumableData>(ItemData);
+		// Cada unidade ocupa seu próprio slot.
+		for (int32 Count = 0; Count < Amount; ++Count)
+		{
+			FInventorySlot NewSlot;
+			FGuid InstanceId = FGuid::NewGuid();
+			NewSlot.InstanceId = InstanceId;
+			NewSlot.ItemData = ItemData;
+			NewSlot.Quantity = 1;
+
+			// Usando move semantics mais pra ter como referencia futuramente, mas o objeto de item é
+			// pequeno o suficiente pra n ser problema fazer uma copia
+			Slots.Add(MoveTemp(NewSlot));
+
+			FInventoryChange Change;
+			Change.ChangeType = EInventoryChangeType::Added;
+			Change.Slot = NewSlot;
+			Change.InstanceId = InstanceId;
+
+			OnInventoryChanged.Broadcast(Change);
+			OnItemAdded.Broadcast(ItemData, Amount, InstanceId);
+			PrintItems();
+		}
+		return true;
 	}
-
-	Slots.Add(NewSlot);
-
-	PrintItems();
-
-	return true;
 }
 
 void UInventoryComponent::PrintItems()
@@ -50,63 +95,67 @@ void UInventoryComponent::PrintItems()
 	UE_LOG(LogTemp, Display, TEXT("                     INVENTORY                         "));
 	for (const FInventorySlot& Slot : Slots)
 	{
-		UE_LOG(LogTemp, Display, TEXT("Item Name: %s; Quantity: %d; Index: %d"), *Slot.ItemData->ItemName.ToString(), Slot.Quantity, Slot.SlotIndex);
+		UE_LOG(LogTemp, Display, TEXT("Item Name: %s; Quantity: %d; FGuid: %s"), *Slot.ItemData->ItemName.ToString(), Slot.Quantity, *Slot.InstanceId.ToString());
 	}
 	UE_LOG(LogTemp, Display, TEXT("-------------------------------------------------------"));
 }
 
-bool UInventoryComponent::RemoveItem(FText ItemName, int32 Quantity)
+bool UInventoryComponent::RemoveItem(const FGuid& InstanceId, int32 Quantity)
 {
-	int32 Index = 0;
-	bool bShouldRemoveFromArray = false;
-	for (FInventorySlot& Slot : Slots)
-	{
-		if (Slot.ItemData->ItemName.EqualTo(ItemName))
+	const int32 SlotIndex = Slots.IndexOfByPredicate(
+		[&InstanceId](const FInventorySlot& Slot)
 		{
-			if (Slot.Quantity - Quantity > 0)
-			{
-				Slot.Quantity -= Quantity;
-				PrintItems();
-				return true;
-			}
+			return Slot.InstanceId == InstanceId;
+		});
 
-			bShouldRemoveFromArray = true;
-			break;
-		}
-		Index++;
-	}
-
-	if (bShouldRemoveFromArray)
+	if (SlotIndex == INDEX_NONE)
 	{
-		Slots.RemoveAt(Index);
-		PrintItems();
-		return true;
+		return false;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Item is not on inventory, cannot remove it."));
+	FInventorySlot& Slot = Slots[SlotIndex];
 
-	return false;
+	FInventoryChange Change;
+	Change.InstanceId = InstanceId;
+
+	if (Slot.ItemData->bIsStackable)
+	{
+		if (Quantity <= 0 || Quantity > Slot.Quantity)
+		{
+			return false;
+		}
+
+		Slot.Quantity -= Quantity;
+
+		if (Slot.Quantity == 0)
+		{
+			Slots.RemoveAt(SlotIndex);
+			Change.ChangeType = EInventoryChangeType::Removed;
+			OnInventoryChanged.Broadcast(Change);
+
+			return true;
+		}
+
+		Change.ChangeType = EInventoryChangeType::QuantityChanged;
+		Change.Slot = Slots[SlotIndex];
+		OnInventoryChanged.Broadcast(Change);
+	}
+	else
+	{
+		// Um slot não-stackável representa uma unidade.
+		Slots.RemoveAt(SlotIndex);
+		Change.ChangeType = EInventoryChangeType::Removed;
+		OnInventoryChanged.Broadcast(Change);
+	}
+
+	return true;
 }
 
-bool UInventoryComponent::CanAddItem(UItemData* ItemData, int32 Quantity)
+bool UInventoryComponent::TryAddItem(UItemData* ItemData, int32 Quantity)
 {
-	for (const FInventorySlot& Slot : Slots)
+	if (!IsValid(ItemData) || Quantity <= 0)
 	{
-		// checar se item existe no inventario
-		if (Slot.ItemData->ItemName.EqualTo(ItemData->ItemName))
-		{
-			// checa se item stacka
-			if (ItemData->bIsStackable)
-			{
-				// checar se item não passou do stack maximo
-				if (Slot.Quantity + Quantity <= ItemData->MaxStackSize)
-				{
-					AddItem(ItemData, true, Quantity);
-					return true;
-				}
-				return false;
-			}
-		}
+		return false;
 	}
 
 	AddItem(ItemData, false, Quantity);
@@ -128,4 +177,32 @@ int32 UInventoryComponent::GetItemCount(UItemData* ItemData) const
 	}
 
 	return Count;
+}
+
+TArray<FInventorySlot> UInventoryComponent::GetSlots() const
+{
+	return Slots;
+}
+
+int32 UInventoryComponent::TransferItemTo(UInventoryComponent* OtherInventory, FGuid ItemSlotId, int32 Amount)
+{
+	FInventorySlot* ItemSlot =
+		Slots.FindByPredicate(
+			[ItemSlotId](const FInventorySlot& Slot)
+			{
+				return Slot.InstanceId == ItemSlotId;
+			});
+
+	if (ItemSlot)
+	{
+		if (OtherInventory->TryAddItem(ItemSlot->ItemData, Amount))
+		{
+			int32 AmountLeft = ItemSlot->Quantity - Amount;
+			RemoveItem(ItemSlotId, Amount);
+
+			return AmountLeft;
+		}
+	}
+
+	return -1;
 }

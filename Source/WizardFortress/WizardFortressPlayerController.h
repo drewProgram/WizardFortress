@@ -10,12 +10,22 @@ class UInputMappingContext;
 class UUserWidget;
 class UMainHUDWidget;
 
+UENUM(BlueprintType)
+enum class EPlayerInputMode : uint8
+{
+	None,
+	Gameplay UMETA(DisplayName = "Gameplay"),
+	UI     UMETA(DisplayName = "UI")
+};
+
 UCLASS(abstract)
 class AWizardFortressPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
 public:
+	AWizardFortressPlayerController();
+
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void ShowPauseMenu();
 
@@ -24,44 +34,39 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void TogglePauseMenu();
-	
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void ToggleInventory();
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void TryInteract();
+
+	UFUNCTION(BlueprintPure, Category = "UI")
+	class UUIManagerComponent* GetUIManager() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Input|Input Mappings")
+	void ChangeInputMapping(EPlayerInputMode NewInputMode);
+
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSubclassOf<UMainHUDWidget> MainHUDClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TArray<TObjectPtr<UInputMappingContext>> GameplayMappingContexts;
 
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSubclassOf<UUserWidget> PauseMenuClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TArray<TObjectPtr<UInputMappingContext>> UIMappingContexts;
 
-	UPROPERTY()
-	TObjectPtr<UMainHUDWidget> MainHUD;
+	UPROPERTY(BlueprintReadOnly, Category = "Input")
+	EPlayerInputMode CurrentInputMode = EPlayerInputMode::None;
 
-	UPROPERTY()
-	TObjectPtr<UUserWidget> PauseMenu;
+	UPROPERTY(VisibleAnywhere, BlueprintGetter = GetUIManager, Category = "Components")
+	TObjectPtr<class UUIManagerComponent> UIManager;
 
-	UPROPERTY(EditAnywhere, Category ="Input|Input Mappings")
+	UPROPERTY(EditAnywhere, Category = "Input|Input Mappings")
 	TArray<UInputMappingContext*> DefaultMappingContexts;
-
-	UPROPERTY(EditAnywhere, Category="Input|Input Mappings")
-	TArray<UInputMappingContext*> MobileExcludedMappingContexts;
-
-	UPROPERTY(EditAnywhere, Category="Input|Touch Controls")
-	TSubclassOf<UUserWidget> MobileControlsWidgetClass;
-
-	UPROPERTY()
-	TObjectPtr<UUserWidget> MobileControlsWidget;
-
-	UPROPERTY(EditAnywhere, Config, Category = "Input|Touch Controls")
-	bool bForceTouchControls = false;
 
 	virtual void BeginPlay() override;
 
 	virtual void SetupInputComponent() override;
 
 	virtual void OnPossess(APawn* InPawn) override;
-
-	bool ShouldUseTouchControls() const;
-
-	void HandleHealthChanged(float CurrentHealth, float MaxHealth);
-	void HandleManaChanged(int32 CurrentMana, int32 MaxMana);
-
+	virtual void OnUnPossess() override;
 };

@@ -22,4 +22,21 @@ namespace WFGameplayTags {
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Status_Cursed, "Status.Cursed", "Curse. Receives more damage.");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Status_Frozen, "Status.Frozen", "Freeze. Can't move or attack.");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Status_Slowed, "Status.Slowed", "Slow. Movement speed penalty.");
+
+
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Room_TestEnv_A, "Room.TestEnv.A", "");
+
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Room_TestEnv_A_0, "Room.TestEnv.A.0", "");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Room_TestEnv_A_1, "Room.TestEnv.A.1", "");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Room_TestEnv_A_2, "Room.TestEnv.A.2", "");
+
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Room_TestEnv_B, "Room.TestEnv.B", "");
+
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Room_TestEnv_B_0, "Room.TestEnv.B.0", "");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Room_TestEnv_B_1, "Room.TestEnv.B.1", "");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Room_TestEnv_B_2, "Room.TestEnv.B.2", "");
+
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Room_Fortress_Main, "Room.Fortress.Main", "");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Room_Fortress_Main_0, "Room.Fortress.Main.0", "");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Room_Fortress_Main_1, "Room.Fortress.Main.1", "");
 }

@@ -93,7 +93,7 @@ void ABaseCharacter::ApplyDefaultEquipment()
 		if (!ItemData) continue;
 
 		// adicionar itens ao inventário
-		bool HasAddedItem = InventoryComponent->CanAddItem(Cast<UItemData>(ItemData));
+		bool HasAddedItem = InventoryComponent->TryAddItem(Cast<UItemData>(ItemData));
 		if (HasAddedItem)
 		{
 			// equipar itens

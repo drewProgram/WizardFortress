@@ -21,6 +21,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Slots")
 	bool bIsAnimFullBody = false;
+
 private:
 	ABaseCharacter* Char = nullptr;
 

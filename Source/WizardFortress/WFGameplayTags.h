@@ -32,4 +32,22 @@ namespace WFGameplayTags {
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Status_Cursed);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Status_Frozen);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Status_Slowed);
+
+    ///////////////////////////////////////////////////
+    // Levels
+    // ////////////////////////////////////////////////
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Room_TestEnv_A);
+
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Room_TestEnv_A_0);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Room_TestEnv_A_1);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Room_TestEnv_A_2);
+
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Room_TestEnv_B);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Room_TestEnv_B_0);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Room_TestEnv_B_1);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Room_TestEnv_B_2);
+
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Room_Fortress_Main);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Room_Fortress_Main_0);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Room_Fortress_Main_1);
 }

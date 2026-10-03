@@ -52,7 +52,7 @@ public:
 	TSoftObjectPtr<UAnimMontage> DeathMontage = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
-	TSoftObjectPtr<UAnimMontage> HitMontage = nullptr;
+	TObjectPtr<UAnimMontage> HitMontage = nullptr;
 
 protected:
 	virtual void BeginPlay() override;

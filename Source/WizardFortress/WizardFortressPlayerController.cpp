@@ -7,11 +7,16 @@
 #include "InputMappingContext.h"
 #include "Blueprint/UserWidget.h"
 #include "WizardFortress.h"
-#include "Widgets/Input/SVirtualJoystick.h"
 
-#include "UI/MainHUDWidget.h"
+#include "UI/HUDWidget.h"
 #include "Systems/AttributeSystem.h"
+#include "UI/UIManagerComponent.h"
 #include "Characters/BaseCharacter.h"
+
+AWizardFortressPlayerController::AWizardFortressPlayerController()
+{
+	UIManager = CreateDefaultSubobject<UUIManagerComponent>(TEXT("UIManager"));
+}
 
 void AWizardFortressPlayerController::ShowPauseMenu()
 {
@@ -25,99 +30,114 @@ void AWizardFortressPlayerController::TogglePauseMenu()
 {
 }
 
+void AWizardFortressPlayerController::ToggleInventory()
+{
+}
+
+void AWizardFortressPlayerController::TryInteract()
+{
+}
+
+UUIManagerComponent* AWizardFortressPlayerController::GetUIManager() const
+{
+	return UIManager;
+}
+
+void AWizardFortressPlayerController::ChangeInputMapping(EPlayerInputMode NewInputMode)
+{
+	if (CurrentInputMode == NewInputMode)
+	{
+		return;
+	}
+
+	UEnhancedInputLocalPlayerSubsystem* Subsystem =
+		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
+			GetLocalPlayer());
+
+	if (!IsValid(Subsystem))
+	{
+		return;
+	}
+
+	switch (CurrentInputMode)
+	{
+	case EPlayerInputMode::Gameplay:
+	{
+		for (UInputMappingContext* Context : GameplayMappingContexts)
+		{
+			Subsystem->RemoveMappingContext(Context);
+		}
+
+		for (UInputMappingContext* Context : UIMappingContexts)
+		{
+			Subsystem->AddMappingContext(Context, 0);
+			SetPause(true);
+		}
+
+		break;
+	}
+
+	case EPlayerInputMode::UI:
+	{
+		for (UInputMappingContext* Context : UIMappingContexts)
+		{
+			Subsystem->RemoveMappingContext(Context);
+		}
+
+		for (UInputMappingContext* Context : GameplayMappingContexts)
+		{
+			Subsystem->AddMappingContext(Context, 0);
+			SetPause(false);
+		}
+
+		break;
+	}
+
+	case EPlayerInputMode::None:
+		for (UInputMappingContext* Context : GameplayMappingContexts)
+		{
+			Subsystem->AddMappingContext(Context, 0);
+		}
+		break;
+	}
+
+	CurrentInputMode = NewInputMode;
+}
+
 void AWizardFortressPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// only spawn touch controls on local player controllers
-	if (ShouldUseTouchControls() && IsLocalPlayerController())
-	{
-		// spawn the mobile controls widget
-		MobileControlsWidget = CreateWidget<UUserWidget>(this, MobileControlsWidgetClass);
-
-		if (MobileControlsWidget)
-		{
-			// add the controls to the player screen
-			MobileControlsWidget->AddToPlayerScreen(0);
-
-		} else {
-
-			UE_LOG(LogWizardFortress, Error, TEXT("Could not spawn mobile controls widget."));
-
-		}
-	}
-
-	if (MainHUDClass)
-	{
-		MainHUD = CreateWidget<UMainHUDWidget>(this, MainHUDClass);
-		if (MainHUD)
-		{
-			MainHUD->AddToViewport();
-			bShowMouseCursor = false;
-			FInputModeGameOnly InputMode;
-			SetInputMode(InputMode);
-		}
-	}
+	bShowMouseCursor = false;
+	FInputModeGameOnly InputMode;
+	SetInputMode(InputMode);
 }
 
 void AWizardFortressPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	// only add IMCs for local player controllers
-	if (IsLocalPlayerController())
-	{
-		// Add Input Mapping Contexts
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
-		{
-			for (UInputMappingContext* CurrentContext : DefaultMappingContexts)
-			{
-				Subsystem->AddMappingContext(CurrentContext, 0);
-			}
-
-			// only add these IMCs if we're not using mobile touch input
-			if (!ShouldUseTouchControls())
-			{
-				for (UInputMappingContext* CurrentContext : MobileExcludedMappingContexts)
-				{
-					Subsystem->AddMappingContext(CurrentContext, 0);
-				}
-			}
-		}
-	}
+	ChangeInputMapping(EPlayerInputMode::Gameplay);
 }
 
 void AWizardFortressPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
+
 	if (UAttributeSystem* AttrSys = (Cast<ABaseCharacter>(GetPawn()))->GetAttributeComponent())
 	{
-		AttrSys->OnHealthChanged.AddUObject(this, &AWizardFortressPlayerController::HandleHealthChanged);
-		AttrSys->OnManaChanged.AddUObject(this, &AWizardFortressPlayerController::HandleManaChanged);
+		if (UIManager)
+		{
+			UIManager->InitUI();
 
-		HandleHealthChanged(AttrSys->GetHealth(), AttrSys->GetMaxHealth());
-		HandleManaChanged(AttrSys->GetMana(), AttrSys->GetMaxMana());
+			UIManager->BindHUDToAttributes(AttrSys);
+		}
 	}
 }
 
-bool AWizardFortressPlayerController::ShouldUseTouchControls() const
+void AWizardFortressPlayerController::OnUnPossess()
 {
-	// are we on a mobile platform? Should we force touch?
-	return SVirtualJoystick::ShouldDisplayTouchInterface() || bForceTouchControls;
-}
+	UIManager->UnbindHUDToAttributes();
 
-void AWizardFortressPlayerController::HandleHealthChanged(float CurrentHealth, float MaxHealth)
-{
-	if (MainHUD)
-	{
-		MainHUD->SetHealth(CurrentHealth, MaxHealth);
-	}
-}
-
-void AWizardFortressPlayerController::HandleManaChanged(int32 CurrentMana, int32 MaxMana)
-{
-	if (MainHUD)
-	{
-		MainHUD->SetMana(CurrentMana, MaxMana);
-	}
+	Super::OnUnPossess();
 }

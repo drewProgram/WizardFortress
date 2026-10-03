@@ -41,7 +41,7 @@ void APickupItem::HandleBeginOverlap(UPrimitiveComponent* OverlappedComponent, A
 		if (APlayerCharacter* PlayerActor = Cast<APlayerCharacter>(OtherActor))
 		{
 			UInventoryComponent* Inventory = PlayerActor->GetInventoryComponent();
-			if (Inventory->CanAddItem(ItemData))
+			if (Inventory->TryAddItem(ItemData))
 			{
 				Destroy();
 				return;

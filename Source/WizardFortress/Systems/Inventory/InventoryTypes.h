@@ -57,6 +57,14 @@ enum class EItemRarity : uint8
     Legendary
 };
 
+UENUM(BlueprintType)
+enum class EInventoryChangeType : uint8
+{
+    Added,
+    QuantityChanged,
+    Removed
+};
+
 USTRUCT(BlueprintType)
 struct FInventorySlot
 {
@@ -68,10 +76,25 @@ struct FInventorySlot
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 Quantity = 0;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int32 SlotIndex = -1;
+    UPROPERTY(BlueprintReadOnly)
+    FGuid InstanceId{};
 
     bool IsEmpty() const;
     
     bool CanStackWith(const UItemData* OtherItem) const;
+};
+
+USTRUCT(BlueprintType)
+struct FInventoryChange
+{
+    GENERATED_BODY()
+
+    UPROPERTY(BlueprintReadOnly)
+    EInventoryChangeType ChangeType;
+
+    UPROPERTY(BlueprintReadOnly)
+    FGuid InstanceId;
+
+    UPROPERTY(BlueprintReadOnly)
+    FInventorySlot Slot;
 };
