@@ -841,10 +841,17 @@
 				"program": "/home/andrew/Applications/UnrealEngine/UE_5.7/Engine/Binaries/Linux/UnrealEditor",
 				"preLaunchTask": "WizardFortressEditor Linux Development Build",
 				"args": [
-					"/home/andrew/Projects/Unreal/WizardFortress/WizardFortress.uproject"
+					"/home/andrew/Projects/Unreal/WizardFortress/WizardFortress.uproject",
+					"-ExecCmds=Slate.EnableTooltips 0"
 				],
 				"cwd": "/home/andrew/Applications/UnrealEngine/UE_5.7",
 				"type": "cppdbg",
+				"environment": [
+					{
+						"name": "SDL_VIDEODRIVER",
+						"value": "x11"
+					}
+    			],
 				"visualizerFile": "/home/andrew/Applications/UnrealEngine/UE_5.7/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
 				"showDisplayString": true
 			},

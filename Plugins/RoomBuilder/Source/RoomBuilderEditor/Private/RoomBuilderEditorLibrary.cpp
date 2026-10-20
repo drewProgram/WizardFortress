@@ -250,13 +250,13 @@ bool URoomBuilderEditorLibrary::UpdateLayout(URoomLayoutData* Layout, const FCel
         if (*Type == CellData.Value)
         Layout->Cells.Remove(CellData.Key);
         Layout->MarkPackageDirty();
-        return false; // Agora est� vazia.
+        return false; // Agora está vazia.
     }
 
     TPair<FIntPoint, ERoomCellType> CellDataPair(CellData.Key, CellData.Value);
     Layout->Cells.Add(CellDataPair);
     Layout->MarkPackageDirty();
-    return true; // Agora est� s�lida.
+    return true; // Agora está sólida.
 }
 
 ERoomCellType URoomBuilderEditorLibrary::ConvertStringToRoomCellType(const FString& Str)
