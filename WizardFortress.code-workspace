@@ -754,8 +754,7 @@
 				"request": "launch",
 				"program": "/home/andrew/Projects/Unreal/WizardFortress/Binaries/Linux/UnrealGame-Linux-Debug",
 				"preLaunchTask": "WizardFortress Linux Debug Build",
-				"args": [
-				],
+				"args": [],
 				"cwd": "/home/andrew/Applications/UnrealEngine/UE_5.7",
 				"type": "cppdbg",
 				"visualizerFile": "/home/andrew/Applications/UnrealEngine/UE_5.7/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
@@ -766,8 +765,7 @@
 				"request": "launch",
 				"program": "/home/andrew/Projects/Unreal/WizardFortress/Binaries/Linux/UnrealGame-Linux-DebugGame",
 				"preLaunchTask": "WizardFortress Linux DebugGame Build",
-				"args": [
-				],
+				"args": [],
 				"cwd": "/home/andrew/Applications/UnrealEngine/UE_5.7",
 				"type": "cppdbg",
 				"visualizerFile": "/home/andrew/Applications/UnrealEngine/UE_5.7/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
@@ -778,8 +776,7 @@
 				"request": "launch",
 				"program": "/home/andrew/Projects/Unreal/WizardFortress/Binaries/Linux/UnrealGame",
 				"preLaunchTask": "WizardFortress Linux Development Build",
-				"args": [
-				],
+				"args": [],
 				"cwd": "/home/andrew/Applications/UnrealEngine/UE_5.7",
 				"type": "cppdbg",
 				"visualizerFile": "/home/andrew/Applications/UnrealEngine/UE_5.7/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
@@ -790,8 +787,7 @@
 				"request": "launch",
 				"program": "/home/andrew/Projects/Unreal/WizardFortress/Binaries/Linux/UnrealGame-Linux-Test",
 				"preLaunchTask": "WizardFortress Linux Test Build",
-				"args": [
-				],
+				"args": [],
 				"cwd": "/home/andrew/Applications/UnrealEngine/UE_5.7",
 				"type": "cppdbg",
 				"visualizerFile": "/home/andrew/Applications/UnrealEngine/UE_5.7/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
@@ -802,8 +798,7 @@
 				"request": "launch",
 				"program": "/home/andrew/Projects/Unreal/WizardFortress/Binaries/Linux/UnrealGame-Linux-Shipping",
 				"preLaunchTask": "WizardFortress Linux Shipping Build",
-				"args": [
-				],
+				"args": [],
 				"cwd": "/home/andrew/Applications/UnrealEngine/UE_5.7",
 				"type": "cppdbg",
 				"visualizerFile": "/home/andrew/Applications/UnrealEngine/UE_5.7/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
@@ -846,14 +841,14 @@
 				],
 				"cwd": "/home/andrew/Applications/UnrealEngine/UE_5.7",
 				"type": "cppdbg",
+				"visualizerFile": "/home/andrew/Applications/UnrealEngine/UE_5.7/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
+				"showDisplayString": true,
 				"environment": [
 					{
 						"name": "SDL_VIDEODRIVER",
 						"value": "x11"
 					}
-    			],
-				"visualizerFile": "/home/andrew/Applications/UnrealEngine/UE_5.7/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
-				"showDisplayString": true
+				]
 			},
 			{
 				"name": "Generate Project Files",
@@ -864,6 +859,8 @@
 				"args": [
 					"-projectfiles",
 					"-vscode",
+					"-project=/home/andrew/Projects/Unreal/WizardFortress/WizardFortress.uproject",
+					"-game",
 					"-engine",
 					"-dotnet"
 				],
